@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mi Espacio</title>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══════════════════════════════════════
+       PANTALLA DE LOGIN
+  ══════════════════════════════════════ -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1>mi espacio</h1>
+      <p>Ideas y tareas organizadas, sincronizadas en todos tus dispositivos.</p>
+      <button id="btn-google">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continuar con Google
+      </button>
+      <div id="login-error"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       APP PRINCIPAL
+  ══════════════════════════════════════ -->
+  <div id="main-app">
+    <div id="backdrop"></div>
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <div class="brand-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span>mi espacio</span>
+        </div>
+        <div id="user-info">
+          <img id="user-avatar" src="" alt=""/>
+          <div id="user-avatar-ph">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="user-text">
+            <div id="user-name"></div>
+            <div id="user-email"></div>
+          </div>
+          <button id="btn-logout" title="Cerrar sesión">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <nav id="sidebar-nav">
+        <!-- Sección INICIO -->
+        <button class="slink active" data-view="home">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Inicio
+        </button>
+
+        <!-- Separador IDEAS -->
+        <div class="nav-section-title">
+          <span>💡 Ideas</span>
+          <button id="btn-new-idea-folder" class="nav-add-btn" title="Nueva carpeta de ideas">+</button>
+        </div>
+        <div id="idea-folder-list"></div>
+
+        <!-- Separador TAREAS -->
+        <div class="nav-section-title">
+          <span>✅ Tareas</span>
+          <button id="btn-new-task-folder" class="nav-add-btn" title="Nueva carpeta de tareas">+</button>
+        </div>
+        <button class="slink" data-view="tasks-home">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Calendario
+        </button>
+        <div id="task-folder-list"></div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        Sincronizado
+      </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div id="main">
+      <div id="header">
+        <button id="btn-menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <button id="btn-back" style="display:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <div id="header-title"><span>Inicio</span></div>
+      </div>
+      <div id="content"></div>
+    </div>
+
+    <button class="fab" id="fab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: IDEA (crear / editar)
+══════════════════════════════════════ -->
+<div id="idea-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span id="idea-modal-title">Nueva idea</span>
+      <div style="display:flex;gap:7px">
+        <button id="btn-save-idea" class="btn-primary">Guardar</button>
+        <button id="btn-close-idea" class="btn-ghost">✕</button>
+      </div>
+    </div>
+    <input id="idea-title-input" placeholder="Título de la idea…"/>
+    <div class="meta-row">
+      <select id="idea-folder-select"><option value="">Sin carpeta</option></select>
+      <div id="idea-color-picker" class="color-row"></div>
+    </div>
+    <textarea id="idea-content" placeholder="Escribe tu idea aquí… Texto libre, apuntes, reflexiones." rows="10"></textarea>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: TAREA (crear / editar)
+══════════════════════════════════════ -->
+<div id="task-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <span id="task-modal-title">Nueva tarea</span>
+      <div style="display:flex;gap:7px">
+        <button id="btn-save-task" class="btn-primary">Guardar</button>
+        <button id="btn-close-task" class="btn-ghost">✕</button>
+      </div>
+    </div>
+
+    <input id="task-title-input" placeholder="¿Qué tienes que hacer?"/>
+
+    <!-- Metadatos -->
+    <div class="task-meta-grid">
+      <div>
+        <label>Carpeta</label>
+        <select id="task-folder-select"><option value="">Sin carpeta</option></select>
+      </div>
+      <div>
+        <label>Estado</label>
+        <select id="task-status">
+          <option value="pending">Pendiente</option>
+          <option value="in-progress">En curso</option>
+          <option value="done">Hecha</option>
+        </select>
+      </div>
+      <div>
+        <label>📅 Fecha límite</label>
+        <input type="datetime-local" id="task-deadline"/>
+      </div>
+      <div>
+        <label>🔔 Notificarme</label>
+        <select id="task-notify">
+          <option value="">Sin notificación</option>
+          <option value="15">15 min antes</option>
+          <option value="60">1 hora antes</option>
+          <option value="1440">1 día antes</option>
+          <option value="custom">Personalizado…</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Notificación personalizada -->
+    <div id="custom-notify-row" style="display:none">
+      <label>⏱ Minutos de antelación</label>
+      <input type="number" id="task-notify-custom" placeholder="ej: 30" min="1"/>
+    </div>
+
+    <!-- Etiquetas -->
+    <div class="section-label">Etiquetas</div>
+    <div class="tags-row">
+      <input id="tag-input" placeholder="Escribe y pulsa Enter…"/>
+      <div id="tags-container"></div>
+    </div>
+
+    <!-- Color -->
+    <div class="section-label">Color</div>
+    <div id="task-color-picker" class="color-row"></div>
+
+    <!-- Subtareas -->
+    <div class="section-label">Subtareas</div>
+    <div id="subtasks-container"></div>
+    <div class="subtask-input-row">
+      <input id="subtask-input" placeholder="Nueva subtarea… (Enter)"/>
+      <button id="btn-add-subtask">+</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: CARPETA (ideas o tareas)
+══════════════════════════════════════ -->
+<div id="folder-modal">
+  <div class="modal-center">
+    <h3 id="folder-modal-title">Nueva carpeta</h3>
+    <input id="folder-name-input" placeholder="Nombre…"/>
+    <div id="folder-color-picker" class="color-row"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button id="btn-save-folder" class="btn-primary" style="flex:1">Crear</button>
+      <button id="btn-close-folder" class="btn-ghost">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     MODAL: CONFIRMAR ELIMINAR
+══════════════════════════════════════ -->
+<div id="confirm-modal">
+  <div class="modal-center">
+    <p id="confirm-msg">¿Eliminar?</p>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button id="btn-confirm-ok" class="btn-danger" style="flex:1">Eliminar</button>
+      <button id="btn-confirm-cancel" class="btn-ghost">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script src="./script.js"></script>
+</body>
+</html>
