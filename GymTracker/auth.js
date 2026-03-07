@@ -1,38 +1,75 @@
 'use strict';
 
-let isGuest = false;
+let isGuest   = false;
+let appReady  = false; // evita que onAuthStateChanged llame a showLogin antes de que getRedirectResult termine
 
 const guestDB = { routines: [], workouts: [] };
-
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-auth.getRedirectResult().catch(e => {
-  if (e.code !== 'auth/no-current-user') console.error('Redirect error:', e);
+// ── Procesar resultado del redirect PRIMERO ──────────────────
+// Marcamos appReady=true solo cuando getRedirectResult termina
+// para que onAuthStateChanged no muestre el login prematuramente
+auth.getRedirectResult().then(result => {
+  appReady = true;
+  // Si hay usuario del redirect, onAuthStateChanged ya lo gestiona
+}).catch(e => {
+  appReady = true;
+  if (e.code && e.code !== 'auth/no-current-user') {
+    console.error('Redirect error:', e.code, e.message);
+  }
 });
 
+// ── Detectar sesión ──────────────────────────────────────────
 auth.onAuthStateChanged(async user => {
+  // Esperar a que getRedirectResult haya terminado
+  if (!appReady) {
+    await new Promise(resolve => {
+      const interval = setInterval(() => {
+        if (appReady) { clearInterval(interval); resolve(); }
+      }, 50);
+    });
+  }
+
   if (user && !isGuest) {
-    enterApp(user, false);
-    await initApp(user);
+    try {
+      enterApp(user, false);
+      await initApp(user);
+    } catch(e) {
+      console.error('Error al iniciar la app:', e);
+    }
   } else if (!isGuest) {
     showLogin();
   }
 });
 
+// ── Botón Google ─────────────────────────────────────────────
 document.getElementById('btn-google-login').onclick = async () => {
-  isGuest = false;
-  await auth.signInWithRedirect(googleProvider);
+  isGuest  = false;
+  appReady = false;
+  try {
+    await auth.signInWithRedirect(googleProvider);
+  } catch(e) {
+    appReady = true;
+    showToast('Error al iniciar sesión. Inténtalo de nuevo.', 'error');
+    console.error(e);
+  }
 };
 
+// ── Botón invitado ───────────────────────────────────────────
 document.getElementById('btn-demo-login').addEventListener('click', async () => {
   isGuest = true;
   guestDB.routines = [];
   guestDB.workouts = [];
   const fakeUser = { uid: 'guest', displayName: 'Invitado', email: '', photoURL: null };
-  enterApp(fakeUser, true);
-  await initApp(fakeUser);
+  try {
+    enterApp(fakeUser, true);
+    await initApp(fakeUser);
+  } catch(e) {
+    console.error('Error modo invitado:', e);
+  }
 });
 
+// ── Cerrar sesión ────────────────────────────────────────────
 document.getElementById('btn-logout')?.addEventListener('click', async () => {
   const ok = await showConfirm('¿Cerrar sesión?', 'Tus datos están guardados en la nube.');
   if (!ok) return;
@@ -46,6 +83,7 @@ document.getElementById('btn-logout')?.addEventListener('click', async () => {
   }
 });
 
+// ── Helpers ──────────────────────────────────────────────────
 function showLogin() {
   document.getElementById('login-screen').hidden = false;
   document.getElementById('app').hidden = true;
@@ -71,6 +109,7 @@ function updateUserProfile(user, guest = false) {
   if (heroName) heroName.textContent = guest ? 'Invitado' : (user.displayName || 'Atleta').split(' ')[0];
 }
 
+// ── Wrappers DB para modo invitado ───────────────────────────
 const guestId = () => 'g_' + Math.random().toString(36).slice(2, 10);
 
 const _orig = {
