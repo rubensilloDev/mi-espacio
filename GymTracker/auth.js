@@ -19,6 +19,15 @@ const guestDB = {
   workouts: []
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 // ════════════════════════════════════════════════════════════
 // DETECTAR SESIÓN DE FIREBASE
 // ════════════════════════════════════════════════════════════
@@ -41,12 +50,21 @@ auth.onAuthStateChanged(async user => {
 document.getElementById('btn-google-login').onclick = async () => {
   try {
     isGuest = false;
-    await auth.signInWithPopup(googleProvider);
+    await auth.signInWithRedirect(googleProvider);
   } catch(e) {
     showToast('Error al iniciar sesión. Inténtalo de nuevo.', 'error');
     console.error(e);
   }
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 // Entrar sin cuenta (modo invitado)
 document.getElementById('btn-demo-login').addEventListener('click', async () => {
@@ -60,6 +78,15 @@ document.getElementById('btn-demo-login').addEventListener('click', async () => 
     email:       '',
     photoURL:    null
   };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
   enterApp(fakeUser, true);
   await initApp(fakeUser);
@@ -143,6 +170,15 @@ window.saveRoutine = async function(routine) {
   if (routine.id) {
     const idx = guestDB.routines.findIndex(r => r.id === routine.id);
     if (idx >= 0) guestDB.routines[idx] = { ...routine };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
     return routine.id;
   } else {
     const id = guestId();
@@ -151,21 +187,57 @@ window.saveRoutine = async function(routine) {
   }
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.getRoutines = async function() {
   if (!isGuest) return _originalGetRoutines();
   return [...guestDB.routines];
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 window.deleteRoutine = async function(routineId) {
   if (!isGuest) return _originalDeleteRoutine(routineId);
   guestDB.routines = guestDB.routines.filter(r => r.id !== routineId);
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.saveWorkout = async function(workout) {
   if (!isGuest) return _originalSaveWorkout(workout);
   if (workout.id) {
     const idx = guestDB.workouts.findIndex(w => w.id === workout.id);
     if (idx >= 0) guestDB.workouts[idx] = { ...workout };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
     return workout.id;
   } else {
     const id = guestId();
@@ -173,6 +245,15 @@ window.saveWorkout = async function(workout) {
     return id;
   }
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 window.getWorkoutsByMonth = async function(year, month) {
   if (!isGuest) return _originalGetWorkoutsByMonth(year, month);
@@ -184,15 +265,42 @@ window.getWorkoutsByMonth = async function(year, month) {
     .sort((a, b) => a.date.localeCompare(b.date));
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.getWorkoutByDate = async function(date) {
   if (!isGuest) return _originalGetWorkoutByDate(date);
   return guestDB.workouts.find(w => w.date === date) || null;
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.deleteWorkout = async function(workoutId) {
   if (!isGuest) return _originalDeleteWorkout(workoutId);
   guestDB.workouts = guestDB.workouts.filter(w => w.id !== workoutId);
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 window.getRecentWorkouts = async function(limit = 10) {
   if (!isGuest) return _originalGetRecentWorkouts(limit);
@@ -201,10 +309,28 @@ window.getRecentWorkouts = async function(limit = 10) {
     .slice(0, limit);
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.getAllWorkouts = async function() {
   if (!isGuest) return _originalGetAllWorkouts();
   return [...guestDB.workouts].sort((a, b) => b.date.localeCompare(a.date));
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 window.getExerciseHistory = async function(exerciseName, maxDocs = 60) {
   if (!isGuest) return _originalGetExerciseHistory(exerciseName, maxDocs);
@@ -230,6 +356,15 @@ window.getExerciseHistory = async function(exerciseName, maxDocs = 60) {
   return history.reverse();
 };
 
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
+
 window.importBackup = async function(data) {
   if (!isGuest) return _originalImportBackup(data);
   // En modo invitado simplemente carga los datos en memoria
@@ -240,6 +375,15 @@ window.importBackup = async function(data) {
     guestDB.workouts.push({ ...w, id: guestId() });
   });
 };
+
+// Recoger el resultado cuando Google nos devuelve a la app
+auth.getRedirectResult().then(result => {
+  // El onAuthStateChanged ya se encarga de entrar en la app
+}).catch(e => {
+  if (e.code !== 'auth/no-current-user' && e.code !== 'auth/null-user') {
+    console.error('Redirect error:', e);
+  }
+});
 
 // Exponer isGuest globalmente por si algún módulo lo necesita
 window.isGuest = () => isGuest;
