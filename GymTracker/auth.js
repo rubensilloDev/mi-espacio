@@ -25,13 +25,10 @@ googleProvider.addScope('email');
  */
 async function signInWithGoogle() {
   try {
-    await auth.signInWithPopup(googleProvider);
+    await auth.signInWithRedirect(googleProvider);
   } catch (err) {
-    // Ignorar si el usuario cerró el popup voluntariamente
-    if (err.code !== 'auth/popup-closed-by-user') {
-      showToast('Error al iniciar sesión: ' + err.message, 'error');
-      console.error('Auth error:', err);
-    }
+    showToast('Error al iniciar sesión: ' + err.message, 'error');
+    console.error('Auth error:', err);
   }
 }
 
