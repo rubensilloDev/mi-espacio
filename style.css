@@ -495,11 +495,12 @@ input, textarea, select, button { font-family: inherit; }
 .idea-card {
   background: white;
   border-radius: var(--radio-lg);
-  padding: 16px;
+  padding: 16px 16px 16px 20px;
   border: 1.5px solid #e2e8f0;
   cursor: pointer;
   transition: all .18s;
   position: relative;
+  overflow: hidden;          /* barra queda recortada por el border-radius */
   box-shadow: var(--sombra);
 }
 .idea-card:hover { transform: translateY(-2px); box-shadow: var(--sombra-lg); }
@@ -507,11 +508,11 @@ input, textarea, select, button { font-family: inherit; }
 .idea-card-bar {
   position: absolute;
   top: 0; left: 0; bottom: 0;
-  width: 4px;
-  border-radius: var(--radio-lg) 0 0 var(--radio-lg);
+  width: 5px;
+  border-radius: 0;          /* overflow:hidden ya recorta las esquinas */
 }
 
-.idea-card-inner { padding-left: 8px; }
+.idea-card-inner { padding-left: 0; }
 
 .idea-card h4 {
   font-size: 14px; font-weight: 700;
